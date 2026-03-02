@@ -1,0 +1,4 @@
+# copy this file to application.properties and fill in your own values
+
+gnews.api.key=YOUR_API_KEY_HERE
+server.port=8080

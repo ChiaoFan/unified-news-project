@@ -1,0 +1,8 @@
+/Users/chiao/Documents/Projects/unified-news-project/backend/src/main/java/com/example/news/service/GnewsService.java
+/Users/chiao/Documents/Projects/unified-news-project/backend/src/main/java/com/example/news/model/Article.java
+/Users/chiao/Documents/Projects/unified-news-project/backend/src/main/java/com/example/news/model/ArticleEntity.java
+/Users/chiao/Documents/Projects/unified-news-project/backend/src/main/java/com/example/news/service/GnewsResponse.java
+/Users/chiao/Documents/Projects/unified-news-project/backend/src/main/java/com/example/news/repository/ArticleRepository.java
+/Users/chiao/Documents/Projects/unified-news-project/backend/src/main/java/com/example/news/controller/NewsController.java
+/Users/chiao/Documents/Projects/unified-news-project/backend/src/main/java/com/example/news/NewsApplication.java
+/Users/chiao/Documents/Projects/unified-news-project/backend/src/main/java/com/example/news/service/ArticleSyncService.java

@@ -2,7 +2,19 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+First, add your Gnews API key in a local environment file:
+
+```bash
+# create a file at project root named .env.local
+# then add a line like:
+GNEWS_API_KEY=your_api_key_here
+```
+
+If you want to persist articles, configure a PostgreSQL database and set its connection info in `backend/src/main/resources/application.properties` or via environment variables (see comments in that file). The backend will automatically create the `articles` table when it runs.
+
+The Spring Boot service will fetch new articles from Gnews every three hours and store up to 60 of them; the frontend simply reads from the database.
+
+Next, run the development server:
 
 ```bash
 npm run dev

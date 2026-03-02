@@ -1,0 +1,9 @@
+com/example/news/model/ArticleEntity.class
+com/example/news/service/ArticleSyncService.class
+com/example/news/service/GnewsResponse.class
+com/example/news/NewsApplication.class
+com/example/news/repository/ArticleRepository.class
+com/example/news/model/Article.class
+com/example/news/model/Article$Source.class
+com/example/news/controller/NewsController.class
+com/example/news/service/GnewsService.class

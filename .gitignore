@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# backend config with secrets
+/backend/src/main/resources/application.properties
+/backend/target/classes/application.properties
