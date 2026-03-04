@@ -21,3 +21,19 @@ export async function fetchArticles(): Promise<Article[]> {
   }
   return res.json();
 }
+
+// search articles by keyword using GNews API
+export async function searchArticles(keyword: string): Promise<Article[]> {
+  if (!keyword || keyword.trim().length === 0) {
+    return [];
+  }
+  const baseUrl = process.env.BACKEND_URL || "http://localhost:8080";
+  const url = new URL("/articles/search", baseUrl);
+  url.searchParams.set("q", keyword);
+  
+  const res = await fetch(url.toString());
+  if (!res.ok) {
+    throw new Error(`Search request failed: ${res.status} ${res.statusText}`);
+  }
+  return res.json();
+}

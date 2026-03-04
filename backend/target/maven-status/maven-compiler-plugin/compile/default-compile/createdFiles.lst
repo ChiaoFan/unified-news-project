@@ -7,3 +7,4 @@ com/example/news/model/Article.class
 com/example/news/model/Article$Source.class
 com/example/news/controller/NewsController.class
 com/example/news/service/GnewsService.class
+com/example/news/config/CorsConfig.class

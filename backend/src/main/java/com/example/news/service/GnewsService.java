@@ -2,8 +2,8 @@ package com.example.news.service;
 
 import com.example.news.model.Article;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
@@ -16,12 +16,18 @@ public class GnewsService {
     @Value("${gnews.api.key}")
     private String apiKey;
 
-    public List<Article> fetchArticles(String query, int max) {
-        // GNews caps at 100 results; avoid requesting more than that.
-        int effective = Math.min(max, 100);
-        String url = String.format(
-                "https://gnews.io/api/v4/search?q=%s&lang=en&max=%d&token=%s",
-                query, effective, apiKey);
+    public List<Article> fetchArticles(String query) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+
+        String url = UriComponentsBuilder
+                .fromHttpUrl("https://gnews.io/api/v4/search")
+                .queryParam("q", query)
+                .queryParam("lang", "en")
+                .queryParam("token", apiKey)
+                .build()
+                .toUriString();
         try {
             GnewsResponse response = restTemplate.getForObject(url, GnewsResponse.class);
             if (response == null || response.getArticles() == null) {

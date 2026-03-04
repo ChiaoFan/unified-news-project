@@ -41,7 +41,7 @@ public class ArticleSyncService {
     public void performSync() {
         try {
             System.out.println("starting article sync...");
-            List<Article> fetched = gnewsService.fetchArticles("Germany", 60);
+            List<Article> fetched = gnewsService.fetchArticles("Germany");
             for (Article a : fetched) {
                 repository.findByUrl(a.getUrl()).orElseGet(() -> {
                     ArticleEntity ent = new ArticleEntity();
@@ -63,4 +63,10 @@ public class ArticleSyncService {
             System.err.println("sync error: " + ex.getMessage());
         }
     }
+//write a method that can manually trigger the sync, which can be called from a REST controller for testing purposes
+    public String triggerManualSync() {
+        performSync();
+        return "Manual sync triggered. Check logs for details.";
+    }
+
 }

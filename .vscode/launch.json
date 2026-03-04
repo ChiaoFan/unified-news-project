@@ -1,0 +1,41 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "stepFilters": {
+                "skipClasses": [
+                    "$JDK",
+                    "junit.*"
+                ],
+                "skipSynthetics": false,
+                "skipStaticInitializers": false,
+                "skipConstructors": false
+            }
+        },
+        {
+            "type": "java",
+            "name": "NewsApplication",
+            "request": "launch",
+            "mainClass": "com.example.news.NewsApplication",
+            "projectName": "news-backend",
+            "stepFilters": {
+                "skipClasses": [
+                    "$JDK",
+                    "junit.*",
+                    "*.jar",
+                    "org.springframework.*"
+                ],
+                "skipSynthetics": false,
+                "skipStaticInitializers": false,
+                "skipConstructors": false
+            }
+        }
+    ]
+}
