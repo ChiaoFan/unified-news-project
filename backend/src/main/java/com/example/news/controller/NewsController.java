@@ -27,10 +27,9 @@ public class NewsController {
 
     @GetMapping("/articles")
     public List<com.example.news.model.Article> getArticles() {
-        // return most recent up to 60 articles, converted to DTO
+        // return all articles sorted by most recent, converted to DTO
         return repository.findAll().stream()
                 .sorted((a, b) -> b.getPublishedAt().compareTo(a.getPublishedAt()))
-                .limit(60)
                 .map(this::toDto)
                 .toList();
     }
