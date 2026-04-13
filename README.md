@@ -1,48 +1,166 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Unified News Project
 
-## Getting Started
+Unified News Project is a full-stack news aggregation app built with Next.js, Spring Boot, and PostgreSQL. The backend fetches articles from GNews on startup and every 3 hours, stores them in Postgres, and serves them to the frontend.
 
-First, add your Gnews API key in a local environment file:
+## Architecture
+
+The application runs as 3 services:
+
+- **Frontend**: Next.js 
+- **Backend**: Spring Boot 
+- **Database**: PostgreSQL 15 
+
+## Tech Stack
+
+- Next.js 16 + React 19 + TypeScript
+- Spring Boot 3.1 (Java 21)
+- PostgreSQL 15
+- Docker Compose
+
+## Quick Start (Docker)
+
+### Prerequisites
+
+- Docker Desktop (or Docker Engine + Compose)
+- GNews API key from [https://gnews.io](https://gnews.io)
+
+### 1) Create required Docker volume (first run only)
 
 ```bash
-# create a file at project root named .env.local
-# then add a line like:
+docker volume create news_pgdata
+```
+
+### 2) Create environment file
+
+Create `.env` in project root:
+
+```bash
 GNEWS_API_KEY=your_api_key_here
 ```
 
-If you want to persist articles, configure a PostgreSQL database and set its connection info in `backend/src/main/resources/application.properties` or via environment variables (see comments in that file). The backend will automatically create the `articles` table when it runs.
+### 3) Build and start services
 
-The Spring Boot service will fetch new articles from Gnews every three hours and store up to 60 of them; the frontend simply reads from the database.
+```bash
+docker compose up --build
+```
 
-Next, run the development server:
+Detached mode:
+
+```bash
+docker compose up --build -d
+```
+
+### 4) Access services
+
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
+| Backend | http://localhost:8080 |
+| PostgreSQL | localhost:5432 |
+
+### 5) Stop services
+
+```bash
+docker compose down
+```
+
+## Local Development (Without Docker)
+
+### Prerequisites
+
+- Node.js 18+
+- Java 21+
+- Maven 3.9+
+- PostgreSQL running locally
+
+### 1) Backend configuration
+
+Copy the template and set values:
+
+```bash
+cp backend/src/main/resources/application.properties.example \
+   backend/src/main/resources/application.properties
+```
+
+In `backend/src/main/resources/application.properties`, configure:
+
+- `GNEWS_API_KEY`
+- `spring.datasource.url`
+- `spring.datasource.username`
+- `spring.datasource.password`
+
+### 2) Start backend
+
+```bash
+cd backend
+mvn spring-boot:run
+```
+
+### 3) Start frontend
+
+From project root:
+
+```bash
+npm install
+npm run dev
+```
+
+Frontend runs at `http://localhost:3000` in local dev mode.
+
+## API Endpoints
+
+Base URL (Docker): `http://localhost:8080`
+
+- `GET /articles` → returns stored articles (most recent first, max 60)
+- `GET /articles/search?q=<query>` → fetches live results from GNews
+
+Example:
+
+```bash
+curl "http://localhost:8080/articles/search?q=technology"
+```
+
+## Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `GNEWS_API_KEY` | Yes | API key used by backend to fetch news |
+
+## Useful Commands
+
+From project root:
+
+```bash
+# start all services
+docker compose up --build
+
+# stop and remove containers
+docker compose down
+
+# view running containers
+docker ps
+
+# stream compose logs
+docker compose logs -f
+```
+
+Frontend only:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Troubleshooting
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Missing API key**: ensure `.env` exists and contains `GNEWS_API_KEY=...`
+- **Port conflicts**: check if ports `3000`, `8080`, or `5432` are already in use
+- **Database persistence**: data is stored in Docker volume `news_pgdata`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `app/` — Next.js frontend pages and styles
+- `backend/` — Spring Boot backend service
+- `docker-compose.yml` — multi-service local orchestration
