@@ -2,41 +2,62 @@
 
 import { useState, useEffect } from "react";
 import { Article, fetchArticles, searchArticles } from "../lib/gnews";
-
-// async function loadArticles(): Promise<Article[]> {
-//   // when executed on the server (Node) a relative path won't work; build
-//   // an absolute URL using an env variable or localhost fallback.
-//   const baseUrl = `http://localhost:8080/articles`;
-//   const res = await fetch(baseUrl);
-//   if (!res.ok) throw new Error("Failed to load");
-//   return res.json();
-// }
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
+  CircularProgress,
+  Container,
+  InputAdornment,
+  Link,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import LanguageIcon from "@mui/icons-material/Language";
 
 export default function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const loadArticles = async () => {
-      const data = await fetchArticles();
-      setArticles(data);
-      setLoading(false);
+      try {
+        const data = await fetchArticles();
+        setArticles(data);
+        setErrorMessage("");
+      } catch (error) {
+        console.error("Initial load failed:", error);
+        setErrorMessage("Could not load news. Please check backend connection.");
+      } finally {
+        setLoading(false);
+      }
     };
+
     loadArticles();
   }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    
+
     setLoading(true);
     try {
       const results = await searchArticles(searchQuery);
       setArticles(results);
+      setErrorMessage("");
     } catch (error) {
       console.error("Search failed:", error);
       setArticles([]);
+      setErrorMessage("Search failed. Please try another keyword.");
     } finally {
       setLoading(false);
     }
@@ -45,94 +66,154 @@ export default function Home() {
   const handleReset = async () => {
     setSearchQuery("");
     setLoading(true);
+
     try {
       const data = await fetchArticles();
       setArticles(data);
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Reset failed:", error);
+      setErrorMessage("Could not reload latest news.");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredArticles = articles;
-
   return (
-    <div className="flex min-h-screen items-start justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-6xl flex-col items-start justify-start py-4 px-8 bg-white dark:bg-black">
-        <header className="w-full mb-8">
-          <h1 className="text-4xl font-bold text-slate-800 dark:text-zinc-50">
-            Unified English News
-          </h1>
-          <p className="text-sm text-slate-600 dark:text-zinc-400">
-            A dashboard aggregating English articles with your search.
-          </p>
-          
-          <form onSubmit={handleSearch} className="mt-6 flex gap-2">
-            <input
-              type="text"
-              placeholder="Search news by keyword..."
+    <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: 5 }}>
+      <Container maxWidth="xl">
+        <Stack spacing={3}>
+          <Box>
+            <Typography variant="h4" sx={{ color: "text.primary", mb: 0.5 }}>
+              Chiao's Unified News Dashboard
+            </Typography>
+            <Typography sx={{ color: "text.secondary" }}>
+              Read the latest global news in one place, powered by GNews API.
+            </Typography>
+          </Box>
+
+          <Stack
+            component="form"
+            onSubmit={handleSearch}
+            direction={{ xs: "column", md: "row" }}
+            spacing={1.5}
+          >
+            <TextField
+              fullWidth
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Search news by keyword"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  bgcolor: "background.paper",
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: "#9A9A9A" }} />
+                  </InputAdornment>
+                ),
+              }}
             />
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-lg bg-blue-600 text-white px-6 py-2 font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <Button type="submit" variant="contained" disabled={loading}>
               {loading ? "Searching..." : "Search"}
-            </button>
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={handleReset}
-                className="rounded-lg bg-slate-300 text-slate-800 px-4 py-2 font-medium hover:bg-slate-400"
-              >
-                Reset
-              </button>
-            )}
-          </form>
-        </header>
+            </Button>
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={handleReset}
+              startIcon={<RestartAltIcon />}
+              sx={{ borderColor: "primary.main", color: "primary.main" }}
+            >
+              Reset
+            </Button>
+          </Stack>
 
-        <section className="w-full">
-          {articles.length === 0 ? (
-            <p className="text-center text-slate-500">No articles available.</p>
+          {errorMessage ? <Alert severity="warning">{errorMessage}</Alert> : null}
+
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+              <CircularProgress sx={{ color: "primary.main" }} />
+            </Box>
+          ) : articles.length === 0 ? (
+            <Alert severity="info">No articles available.</Alert>
           ) : (
-            <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {articles.slice(0, articles.length).map((a) => (
-                <li
-                  key={a.url}
-                  className="flex flex-col overflow-hidden rounded-lg border bg-white shadow-sm"
-                >
-                  {a.image && (
-                    <img
-                      src={a.image}
-                      alt={a.title}
-                      className="h-40 w-full object-cover"
-                    />
-                  )}
-                  <div className="flex flex-1 flex-col p-4">
-                    <a
-                      href={a.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-lg font-semibold text-blue-600 hover:underline"
-                    >
-                      {a.title}
-                    </a>
-                    <p className="mt-2 flex-1 text-sm text-slate-700">
-                      {a.description}
-                    </p>
-                    <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
-                      <span>{new Date(a.publishedAt).toLocaleDateString()}</span>
-                      <span>{a.source?.name}</span>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <>
+              <Chip
+                icon={<LanguageIcon />}
+                label={`${articles.length} articles`}
+                sx={{
+                  alignSelf: "flex-start",
+                  bgcolor: "background.paper",
+                  color: "#9A9A9A",
+                }}
+              />
+
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    sm: "repeat(2, minmax(0, 1fr))",
+                    lg: "repeat(3, minmax(0, 1fr))",
+                  },
+                  gap: 2.5,
+                }}
+              >
+                {articles.map((article) => (
+                  <Card key={article.url} elevation={0} sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+                    {article.image ? (
+                      <CardMedia component="img" image={article.image} alt={article.title} sx={{ height: 210 }} />
+                    ) : null}
+
+                    <CardContent sx={{ display: "flex", flexDirection: "column", gap: 1.25, flex: 1 }}>
+                      <Link
+                        href={article.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        underline="hover"
+                        sx={{
+                          fontWeight: 700,
+                          lineHeight: 1.3,
+                          fontSize: "1.2rem",
+                          color: "primary.main",
+                          "&:active": { color: "primary.dark" },
+                        }}
+                      >
+                        {article.title}
+                      </Link>
+
+                      <Typography
+                        sx={{
+                          color: "text.primary",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {article.description || "Open the article to read more."}
+                      </Typography>
+
+                      <Stack direction="row" justifyContent="space-between" sx={{ mt: "auto", pt: 1 }}>
+                        <Typography variant="caption" sx={{ color: "#9A9A9A" }}>
+                          {article.source?.name || "Unknown source"}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: "#6B6B6B" }}>
+                          {article.publishedAt
+                            ? new Date(article.publishedAt).toLocaleDateString()
+                            : "Unknown date"}
+                        </Typography>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+            </>
           )}
-        </section>
-      </main>
-    </div>
+        </Stack>
+      </Container>
+    </Box>
   );
 }
